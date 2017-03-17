@@ -1,0 +1,13 @@
+output("/home/fabio/dev/eagle/ulp/polygons.py"){
+package(pa){
+  printf("data=(");
+  pa.polygons(p){
+  printf("(");
+   p.contours(c){
+     printf("(%d,%d,%d,%d),",c.x1,c.y1,c.x2,c.y2);
+   }
+  printf("),");
+  }//polygons
+printf(")");
+}//package
+}//output
