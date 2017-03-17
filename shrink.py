@@ -86,6 +86,8 @@ def getParallel(w, center, offset):
     #    ninv = ninv + 1
     return (p1 + vo, p2 + vo)
 
+# http://stackoverflow.com/questions/1165647/how-to-determine-if-a-list-of-polygon-points-are-in-clockwise-order
+
 
 def isPolygonClockwise(po):
     s = 0
