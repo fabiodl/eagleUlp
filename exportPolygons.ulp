@@ -1,4 +1,4 @@
-output("/home/fabio/dev/eagle/ulp/polygons.py"){
+output("/tmp/polygons.py"){
 package(pa){
   printf("data=(");
   pa.polygons(p){
