@@ -189,12 +189,15 @@ def getOffseted(pols, offset=100):
         wiree = polygon + (polygon[0],)
         center = np.mean(np.array(wiree), axis=0)[0:2]
         verts = []
+        if isPolygonClockwise(polygon):
+            off = -offset
+        else:
+            off = offset
         for i in range(0, len(wiree) - 1):
             if wiree[i][2:4] != wiree[i + 1][0:2]:
                 raise Exception("polygon verteces are not consecutive")
-
-            a = getParallel(wiree[i], center, offset)
-            b = getParallel(wiree[i + 1], center, offset)
+            a = getParallel(wiree[i], center, off)
+            b = getParallel(wiree[i + 1], center, off)
             inter = intersectLines(a[0], a[1], b[0], b[1])
             if inter is False:
                 plotWire(wiree[i])
@@ -209,7 +212,7 @@ def getOffseted(pols, offset=100):
             verts.append(inter)
         wires = vertsToWires(verts)
 
-        goodPoly = not isPolygonClockwise(wires)
+        goodPoly = True  # not isPolygonClockwise(wires)
 
         for i in range(0, len(wires)):
             if dot(wireVector(wires[i]), wireVector(polygon[i])) < 0:
@@ -223,10 +226,36 @@ def getOffseted(pols, offset=100):
     return newPols
 
 
+def polygonsToScr(outfilename, polygons, offset, layer):
+    scale = 1.0 / 320000
+    f = open(outfilename, "w")
+    headCommands = (
+        "set wire_bend 2",
+        "change layer {}".format(layer),
+        "grid mm",
+    )
+    for c in headCommands:
+        f.write(c)
+        f.write(";\n")
+    for pol in polygons:
+        f.write("polygon {} ".format(offset * 2 * scale))
+        for w in pol:
+            f.write("({} {}) ".format(w[0] * scale, w[1] * scale))
+        f.write("({} {});\n".format(pol[0][0] * scale, pol[0][1] * scale))
+    f.close()
+
+
 def compare():
     symp = simplify(p.data, 0.5 * np.pi / 180, 10000)
-    off = getOffseted(symp, 1000)
+    off = getOffseted(symp, 32000)
     drawSingleColor(p.data, "black")
     drawSingleColor(symp, "blue")
     drawSingleColor(off, "red")
     plt.show()
+    plt.axis("equal")
+
+
+def shrink(offset=32000):
+    symp = simplify(p.data, 0.5 * np.pi / 180, 10000)
+    off = getOffseted(symp, offset)
+    polygonsToScr("/tmp/out.scr", off, offset, "tPlace")
